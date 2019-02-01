@@ -3,16 +3,20 @@ class GraphqlController < ApplicationController
     variables = ensure_hash(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
+
+    # The session key here is coming from the frontend, for authenticated user
+    session = Session.where(key: request.headers['Authorization']).first
+    Rails.logger.info "Logged in as \e[m31#{session&.user&.email}"
     context = {
-      name: "Nelson Umunna"
-      # Query context goes here, for example:
-      # current_user: current_user,
+      current_user: session&.user,
+      session_id: session&.id
     }
     result = BookshelfSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
   rescue => e
     raise e unless Rails.env.development?
     handle_error_in_development e
+    puts e.inspect
   end
 
   private

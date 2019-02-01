@@ -9,4 +9,9 @@ class Types::CoordinatesType < Types::BaseObject
     def longitude
         object.last
     end
+
+    # Only allow these coordinates with latt > 10 and long < 10
+    def self.authorized?(object, context)
+        object.first > 10 && object.last < 10
+    end
 end
